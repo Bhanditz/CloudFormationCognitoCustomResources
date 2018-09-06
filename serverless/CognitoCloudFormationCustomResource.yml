@@ -1,0 +1,18 @@
+service: cfn-custom-cognito-pools
+provider:
+  name: aws
+  stage: ${opt:stage, 'dev'}
+  region: eu-west-1
+  runtime: nodejs8.10
+  profile: ${opt:profile, 'sandbox'}
+
+functions:
+  empty: 
+    handler: src/empty.js
+
+resources:
+  Resources: 
+    UserPoolTest: ${file(./CloudFormation/Cognito/UserPool.yml):UserPoolTest}
+    UserPoolTestClient: ${file(./CloudFormation/Cognito/UserPool.yml):UserPoolTestClient}
+    UserPoolTestClientSettings: ${file(./CloudFormation/Cognito/UserPool.yml):UserPoolTestClientSettings}
+    UserPoolTestDomain: ${file(./CloudFormation/Cognito/UserPool.yml):UserPoolTestDomain}

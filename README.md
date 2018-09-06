@@ -1,29 +1,28 @@
 # Setting up *Cognito* *App client settings* and *Domain name* with AWS CloudFormation
 
+Forked from https://github.com/rosberglinhares/CloudFormationCognitoCustomResources
+
+Converted to Serverless deployment method
+
+This should be used as a template to implement Cognito custom resources within other projects, and should not be
+deployed direcly - deployment will work, but it creates example Cognito resources, and is intended to serve as an example.
+
 ## Deploy steps
 
-1. Install the AWS Command Line Interface. More information at https://aws.amazon.com/cli/.
+1. Install serverless
 
-2. Open your command shell and navigate to the directory containing the *SampleInfrastructure.template.yaml* file.
+2. Navigate to the root directory
 
-3. If you don't have any AWS S3 bucket available, you have to create one running the following command:
+3. `cp serverless/LambdaCloudFormationCustomResource.yml ./serverless.yml`
 
-    ```bash
-    aws s3 mb s3://<YOUR BUCKET NAME>
-    ```
-    
-    Observe that the bucket name must be unique across all existing bucket names in Amazon S3 and must not contain uppercase or space characters.
+4. `serverless deploy --stage STAGE --profile PROFILE`
 
-4. Run the following command to package the local artifacts that the AWS CloudFormation template references:
+5. `cp serverless/CognitoCloudFormationCustomResource.yml .serverless/yml`
 
-    ```bash
-    aws cloudformation package --template-file SampleInfrastructure.template.yaml --s3-bucket <YOUR BUCKET NAME> --output-template-file SampleInfrastructure.package.yaml
-    ```
-    
-5. Finally, execute the deploy of your stack:
+6. `serverless deploy --stage STAGE --profile PROFILE`
 
-    ```bash
-    aws cloudformation deploy --template-file SampleInfrastructure.package.yaml --stack-name <YOUR STACK NAME> --capabilities CAPABILITY_NAMED_IAM
-    ```
-    
-    Replace the `<YOUR STACK NAME>` expression with your desired stack name.
+## NOTE
+
+* The order of deployments is *important* - the Lambda service must be deployed before the Cognito service, as the latter depends on cross-stack references to outputs from the former.
+
+* Buildspec script examples (for integration with CodeBuild) are included in `./deploy/`

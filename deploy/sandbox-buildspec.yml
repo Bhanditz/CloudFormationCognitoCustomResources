@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_PROFILE: sandbox
+    AWS_DEFAULT_REGION: eu-west-1
+  parameter-store:
+    AWS_ACCESS_KEY_ID: SERVERLESS_SANDBOX_AWS_ACCESS_KEY
+    AWS_SECRET_ACCESS_KEY: SERVERLESS_SANDBOX_AWS_ACCESS_SECRET
+    AWS_ACCOUNT_ID: SERVERLESS_SANDBOX_AWS_ACCOUNT_ID
+
+phases:
+  install:
+    commands:
+      - curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh && bash nodesource_setup.sh
+      - apt-get install -y nodejs -qq
+      - npm install -g serverless@1.28.0
+      - cd / && serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY --profile $AWS_PROFILE
+  pre_build:
+    commands:
+      - echo 'serverless version -' `serverless --version`
+      - cd $CODEBUILD_SRC_DIR
+  build:
+    commands:
+      - npm i
+      - cp -f serverless/LambdaCloudFormationCustomResource.yml ./serverless.yml
+      - serverless deploy --verbose --stage dev --profile $AWS_PROFILE
+      - cp -f serverless/CognitoCloudFormationCustomResource.yml ./serverless.yml
+      - serverless deploy --verbose --stage dev --profile $AWS_PROFILE
+  post_build:
+    commands:
+      - echo Build completed on `date`

@@ -1,0 +1,35 @@
+UserPoolTest:
+  Type: 'AWS::Cognito::UserPool'
+  Properties:
+    UserPoolName: UserPoolTest
+UserPoolTestClient:
+  Type: 'AWS::Cognito::UserPoolClient'
+  Properties:
+    ClientName: UserPoolTestClient
+    GenerateSecret: true
+    UserPoolId: 
+      Ref: UserPoolTest
+UserPoolTestClientSettings:
+  Type: 'Custom::CognitoUserPoolClientSettings'
+  Properties:
+    ServiceToken: ${cf:cfn-custom-cognito-lambda-${self:provider.stage}.CognitoUserPoolClientSettingsArn}
+    UserPoolId: 
+      Ref: UserPoolTest
+    UserPoolClientId: 
+      Ref: UserPoolTestClient
+    SupportedIdentityProviders:
+      - COGNITO
+    CallbackURL: 'https://www.amazon.com'
+    LogoutURL: 'https://www.google.com'
+    AllowedOAuthFlowsUserPoolClient: true
+    AllowedOAuthFlows:
+      - code
+    AllowedOAuthScopes:
+      - openid
+UserPoolTestDomain:
+  Type: 'Custom::CognitoUserPoolDomain'
+  Properties:
+    ServiceToken: ${cf:cfn-custom-cognito-lambda-${self:provider.stage}.CognitoUserPoolDomainArn}
+    UserPoolId: 
+      Ref: UserPoolTest
+    Domain: 'userpool-test-01'
